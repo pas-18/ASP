@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 36ea2c531702cf940af7bacfc387ecd3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - celestialData: {fileID: 11400000, guid: 96ca0b41796900b46a93ed8613006b1a, type: 2}
+  - bodyPrefab: {fileID: 1852461860586311009, guid: e6cbd8ecc70284243839522d70908195, type: 3}
+  - constructionSet: {fileID: 11400000, guid: c4acebc196bc9874db9d275133445d23, type: 2}
+  - constructionPrefab: {fileID: 3662995466757856778, guid: 330f635161c265047bbe07ba1f0f0b19, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
