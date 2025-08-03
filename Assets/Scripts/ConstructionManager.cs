@@ -144,7 +144,7 @@ public class OrbitalConstruction : MonoBehaviour
     public void ShowConstructionInfo()
     {
         Debug.Log($"½¨Öþ´¥·¢: {constructionName}");
-        UIManager.Instance.ShowConstructionInfo(this, transform.position);
+        UIManager.Instance.ShowConstructionInfo(this);
         /*
         if (IsVisibleFromCamera())
         { 

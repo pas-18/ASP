@@ -1,6 +1,4 @@
 // UIManager.cs
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -13,65 +11,104 @@ public class UIManager : MonoBehaviour
     public TMP_Text constructionNameText;
     public TMP_Text constructionCoordinatesText;
     public Vector2 constructionOffset = new Vector2(20, -20); // 右下角偏移
-
+    
     // 天体信息UI
     public GameObject celestialInfoPanel;
     public TMP_Text celestialNameText;
-    public Vector2 celestialOffset = new Vector2(-20, 20); // 左上角偏移
-
+    public Vector2 celestialOffset = new Vector2(-20, 20); // 左下角偏移
+    
     private RectTransform canvasRect;
-    private Camera mainCamera;
-
+    
     void Awake()
     {
         Instance = this;
-        mainCamera = Camera.main;
         canvasRect = GetComponent<RectTransform>();
         constructionInfoPanel.SetActive(false);
         celestialInfoPanel.SetActive(false);
     }
-
-    // 显示建筑信息
-    public void ShowConstructionInfo(OrbitalConstruction construction, Vector3 worldPosition)
+    
+    void Update()
+    {
+        // 更新UI位置（如果正在显示）
+        if (constructionInfoPanel.activeSelf)
+        {
+            UpdatePanelPosition(constructionInfoPanel, Input.mousePosition, constructionOffset);
+        }
+        
+        if (celestialInfoPanel.activeSelf)
+        {
+            UpdatePanelPosition(celestialInfoPanel, Input.mousePosition, celestialOffset);
+        }
+    }
+    
+    // 显示建筑信息（跟随鼠标）
+    public void ShowConstructionInfo(OrbitalConstruction construction)
     {
         constructionNameText.text = construction.constructionName;
-        constructionCoordinatesText.text = $"经度: {construction.longitude:F2}°\n纬度: {construction.latitude:F2}°";
-        UpdatePanelPosition(constructionInfoPanel, worldPosition, constructionOffset);
+        string text_s = $"{construction.name}\n";
+        if (construction.longitude > 0)
+        {
+            text_s += $"{construction.longitude:F2}°N\t";
+        }
+        else
+        {
+            text_s += $"{-construction.longitude:F2}°S\t";
+        }
+        if (construction.latitude > 0)
+        {
+            text_s += $" {construction.latitude:F2}°E";
+        }
+        else
+        {
+            text_s += $" {-construction.latitude:F2}°W";
+        }
+        constructionCoordinatesText.text = text_s;
+        
+        // 初始设置位置
+        UpdatePanelPosition(constructionInfoPanel, Input.mousePosition, constructionOffset);
         constructionInfoPanel.SetActive(true);
+        
+        // 隐藏天体信息（如果正在显示）
+        HideCelestialInfo();
     }
-
-    // 显示天体信息
-    public void ShowCelestialInfo(AutoWireframeSphere celestial, Vector3 worldPosition)
+    
+    // 显示天体信息（跟随鼠标）
+    public void ShowCelestialInfo(AutoWireframeSphere celestial)
     {
         celestialNameText.text = celestial.celestialName;
-        UpdatePanelPosition(celestialInfoPanel, worldPosition, celestialOffset);
+        
+        // 初始设置位置
+        UpdatePanelPosition(celestialInfoPanel, Input.mousePosition, celestialOffset);
         celestialInfoPanel.SetActive(true);
+        
+        // 隐藏建筑信息（如果正在显示）
+        HideConstructionInfo();
     }
-
+    
     public void HideConstructionInfo()
     {
         constructionInfoPanel.SetActive(false);
     }
-
+    
     public void HideCelestialInfo()
     {
         celestialInfoPanel.SetActive(false);
     }
-
-    // 更新UI面板位置
-    private void UpdatePanelPosition(GameObject panel, Vector3 worldPosition, Vector2 offset)
+    
+    // 更新UI面板位置（基于鼠标位置）
+    private void UpdatePanelPosition(GameObject panel, Vector2 mousePosition, Vector2 offset)
     {
-        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(mainCamera, worldPosition);
+        Vector2 screenPoint = mousePosition;
+        
         Vector2 finalPosition = screenPoint + offset;
-
-        // 限制在屏幕内
+        
+        // 确保UI在屏幕内
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         float width = panelRect.rect.width;
         float height = panelRect.rect.height;
-
         finalPosition.x = Mathf.Clamp(finalPosition.x, width / 2, Screen.width - width / 2);
         finalPosition.y = Mathf.Clamp(finalPosition.y, height / 2, Screen.height - height / 2);
-
+        
         panelRect.position = finalPosition;
     }
 }

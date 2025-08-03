@@ -176,7 +176,7 @@ public class AutoWireframeSphere : MonoBehaviour
                     on_celestial = true;
                     UIManager.Instance.HideConstructionInfo();
                     Debug.Log("Celestial OnMouseEnter: " + celestialName);
-                    UIManager.Instance.ShowCelestialInfo(this, transform.position);
+                    UIManager.Instance.ShowCelestialInfo(this);
                 }
             }
         }
