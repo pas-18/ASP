@@ -18,5 +18,5 @@ MonoBehaviour:
     longitude: -74.57528
     latitude: -0.1025
     color: {r: 1, g: 1, b: 1, a: 1}
-    radius: 0.1
+    radius: 0.02
     lineWidth: 0.1
