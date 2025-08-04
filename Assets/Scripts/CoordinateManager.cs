@@ -7,15 +7,18 @@ public class CoordinateManager : MonoBehaviour
 {
     public static CoordinateManager Instance;
 
-    // 浮点精度阈值（超过此距离开始压缩）
-    public const float FLOAT_PRECISION_THRESHOLD = 1000f;
+    public const float FLOAT_PRECISION_THRESHOLD = 1000f;  // 压缩阈值
+    public bool ensureMinViewAngle = false; // UI开关
+    public float minViewAngle = 2f; // 最小视角(度)
 
     // 当前焦点天体
     private CelestialData.BodyData focusBody;
+    private Camera mainCamera;
 
     void Awake()
     {
         Instance = this;
+        mainCamera = Camera.main;
     }
 
     // 设置焦点天体
@@ -35,40 +38,82 @@ public class CoordinateManager : MonoBehaviour
     // 更新所有天体的位置
     public void UpdateAllPositions()
     {
-        if (focusBody == null) return;
+        if (focusBody == null || mainCamera == null) return;
 
+        float scaleFactor = 600000; // 缩放基准600,000
+        Vector3 cameraPos = mainCamera.transform.position;
+        
         foreach (var body in GameManager.Instance.celestialData.bodies)
         {
-            if (body == focusBody)
+            // 基本缩放
+            Vector3 relPos = (body.abs_pos - focusBody.abs_pos) / scaleFactor;
+            float baseRadius = body.abs_radius / scaleFactor;
+
+            // 压缩处理
+            float distance = relPos.magnitude;
+            if (distance > FLOAT_PRECISION_THRESHOLD)
             {
-                // 焦点天体放在原点
-                body.rel_pos = Vector3.zero;
-                body.display_pos = Vector3.zero;
-                body.display_radius = body.abs_radius / 600000;
+                float compressionRatio = FLOAT_PRECISION_THRESHOLD / distance;
+                body.display_pos = relPos * compressionRatio;
+                body.display_radius = baseRadius * compressionRatio;
             }
             else
             {
-                // 计算相对位置
-                body.rel_pos = (body.abs_pos - focusBody.abs_pos) / 600000;
+                body.display_pos = relPos;
+                body.display_radius = baseRadius;
+            }
 
-                // 计算到焦点的距离
-                float distance = body.rel_pos.magnitude;
+            // 视角保证
+            if (ensureMinViewAngle)
+            {
+                EnsureMinViewAngle(body, cameraPos);
+            }
+        }
 
-                // 检查是否需要压缩
-                if (distance > FLOAT_PRECISION_THRESHOLD)
+        UpdateBodyPositions();
+    }
+
+
+    private void EnsureMinViewAngle(CelestialData.BodyData body, Vector3 cameraPos)
+    {
+        // 计算天体到相机的向量
+        Vector3 toBody = body.display_pos - cameraPos;
+        float distanceToCamera = toBody.magnitude;
+        
+        // 避免除以零
+        if (distanceToCamera < 0.001f) return;
+        
+        // 计算当前视角(弧度)
+        float currentAngleRad = Mathf.Atan2(body.display_radius, distanceToCamera);
+        float currentAngleDeg = currentAngleRad * Mathf.Rad2Deg;
+        float minAngleRad = minViewAngle * Mathf.Deg2Rad;
+        
+        // 如果当前视角小于最小视角
+        if (currentAngleDeg < minViewAngle)
+        {
+            // 计算所需半径以保证最小视角
+            float requiredRadius = distanceToCamera * Mathf.Tan(minAngleRad);
+            body.display_radius = requiredRadius;
+        }
+    }
+
+
+    // 更新游戏对象位置
+    private void UpdateBodyPositions()
+    {
+        foreach (var bodyData in GameManager.Instance.celestialData.bodies)
+        {
+            GameObject bodyObj = Create.celestialbody_list.Find(b => b.name == bodyData.name);
+            if (bodyObj != null)
+            {
+                bodyObj.transform.position = bodyData.display_pos;
+                bodyObj.transform.localScale = Vector3.one * bodyData.display_radius;
+
+                // 更新线框
+                AutoWireframeSphere wireframe = bodyObj.GetComponent<AutoWireframeSphere>();
+                if (wireframe != null)
                 {
-                    // 计算压缩比例
-                    float compressionRatio = FLOAT_PRECISION_THRESHOLD / distance;
-
-                    // 应用压缩
-                    body.display_pos = body.rel_pos * compressionRatio;
-                    body.display_radius = body.abs_radius * compressionRatio;
-                }
-                else
-                {
-                    // 不需要压缩
-                    body.display_pos = body.rel_pos;
-                    body.display_radius = body.abs_radius;
+                    wireframe.UpdateWireframe();
                 }
             }
         }

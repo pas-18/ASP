@@ -31,7 +31,7 @@ public class AutoWireframeSphere : MonoBehaviour
     private bool on_mouse = false;
     private bool on_celestial = false;
     private bool on_construction = false;
-    
+
     void Start()
     {
         InitializeComponents();
@@ -45,12 +45,16 @@ public class AutoWireframeSphere : MonoBehaviour
     private void OnMouseEnter()
     {
         on_mouse = true;
+        // Debug.Log("Enter"+on_mouse.ToString());
     }
 
+    /*
     private void OnMouseExit()
     {
         on_mouse = false;
+        // Debug.Log("Exit"+on_mouse.ToString());
     }
+    */
 
     public void GenerateWireframe()
     {
@@ -77,23 +81,6 @@ public class AutoWireframeSphere : MonoBehaviour
         GenerateMeshData(actualRadius);
     }
 
-    /*
-    public void GenerateWireframe()
-    {
-        InitializeComponents();
-
-        // 1. 计算实际半径 (考虑球体缩放)
-        float actualRadius = CalculateSphereRadius();
-
-        // 2. 获取球体颜色
-        Color sphereColor = GetSphereColor();
-        wireframeMaterial.SetColor("_LineColor", sphereColor);
-        wireframeMaterial.SetFloat("_LineWidth", lineWidth);
-
-        // 3. 生成网格数据
-        GenerateMeshData(actualRadius);
-    }
-    */
 
     public void InitializeComponents()
     {
@@ -134,7 +121,7 @@ public class AutoWireframeSphere : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("UpDate");
+        // Debug.Log("UpDate");
         // 更新特殊经线颜色
         if (specialLineMaterial != null)
         {
@@ -146,7 +133,7 @@ public class AutoWireframeSphere : MonoBehaviour
         {
             GenerateWireframe();
         }
-
+        //Debug.Log(on_mouse);
         if (on_mouse)
         {
             // 使用射线检测确定实际命中的物体
@@ -166,42 +153,47 @@ public class AutoWireframeSphere : MonoBehaviour
                     if (construction != null)
                     {
                         // 直接调用建筑的显示方法
+                        //Debug.Log("Construction!");
                         construction.ShowConstructionInfo();
                     }
                 }
                 // 检查是否命中了当前天体（父物体）
-                else // if (hit.collider.gameObject == this.gameObject)
+                else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Celestial"))
                 {
                     on_construction = false;
                     on_celestial = true;
                     UIManager.Instance.HideConstructionInfo();
-                    Debug.Log("Celestial OnMouseEnter: " + celestialName);
+                    //Debug.Log("Celestial OnMouseEnter: " + celestialName);
                     UIManager.Instance.ShowCelestialInfo(this);
+                }
+                else{
+                    UIManager.Instance.HideCelestialInfo();
+                    on_celestial = false;
+                    
+                    UIManager.Instance.HideConstructionInfo();
+                    on_construction = false;
                 }
             }
         }
+        /*
         else
         {
             UIManager.Instance.HideCelestialInfo();
+        }
+        */
+
+        if (celestialBodyData != null)
+        {
+            transform.position = celestialBodyData.display_pos;
+            transform.localScale = Vector3.one * celestialBodyData.display_radius;
         }
     }
 
     bool HasSphereParametersChanged()
     {
-        // Debug.Log("HasSphereParametersChanged");
         return transform.hasChanged;
     }
 
-    /*
-    float CalculateSphereRadius()
-    {
-        return 0.5f * Mathf.Max(
-            transform.lossyScale.x,
-            transform.lossyScale.y,
-            transform.lossyScale.z
-        );
-    }
-    */
 
     Color GetSphereColor()
     {
@@ -221,7 +213,7 @@ public class AutoWireframeSphere : MonoBehaviour
 
     void GenerateMeshData(float radius)
     {
-        
+
         // 顶点计算
         int vertexCount = longitudeSegments * (latitudeSegments + 1)  // 经线
                         + (latitudeSegments - 1) * longitudeSegments; // 纬线 (排除两极)
@@ -319,5 +311,23 @@ public class AutoWireframeSphere : MonoBehaviour
         float z = radius * Mathf.Sin(theta) * Mathf.Sin(phi);
         return new Vector3(x, y, z);
 
+    }
+    
+    public void UpdateWireframe()
+    {
+        if (celestialBodyData == null) return;
+        
+        // 获取当前显示半径
+        float actualRadius = CoordinateManager.Instance.GetBodyRadius(celestialBodyData);
+        
+        // 更新线框
+        GenerateMeshData(actualRadius);
+        
+        // 更新碰撞器
+        SphereCollider collider = GetComponent<SphereCollider>();
+        if (collider != null)
+        {
+            collider.radius = actualRadius;
+        }
     }
 }

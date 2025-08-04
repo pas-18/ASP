@@ -1,6 +1,7 @@
 // UIManager.cs
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -18,9 +19,54 @@ public class UIManager : MonoBehaviour
     public Vector2 celestialOffset = new Vector2(-20, 20); // 左下角偏移
     
     private RectTransform canvasRect;
+
+    [Header("视角控制")]
+    public Toggle viewAngleToggle;
+    public Slider viewAngleSlider;
+    public TMP_Text viewAngleText;
     
+    
+    void Start()
+    {
+        // 初始化视角控制
+        if (viewAngleToggle != null)
+        {
+            viewAngleToggle.isOn = CoordinateManager.Instance.ensureMinViewAngle;
+            viewAngleToggle.onValueChanged.AddListener(OnViewAngleToggleChanged);
+        }
+        
+        if (viewAngleSlider != null)
+        {
+            viewAngleSlider.value = CoordinateManager.Instance.minViewAngle;
+            viewAngleSlider.onValueChanged.AddListener(OnViewAngleSliderChanged);
+            UpdateViewAngleText();
+        }
+    }
+
+    public void OnViewAngleToggleChanged(bool isOn)
+    {
+        CoordinateManager.Instance.ensureMinViewAngle = isOn;
+        CoordinateManager.Instance.UpdateAllPositions();
+    }
+
+    public void OnViewAngleSliderChanged(float value)
+    {
+        CoordinateManager.Instance.minViewAngle = value;
+        UpdateViewAngleText();
+        CoordinateManager.Instance.UpdateAllPositions();
+    }
+
+    private void UpdateViewAngleText()
+    {
+        if (viewAngleText != null)
+        {
+            viewAngleText.text = $"最小视角: {viewAngleSlider.value:F1}°";
+        }
+    }
+
     void Awake()
     {
+        Debug.Log("Awake");
         Instance = this;
         canvasRect = GetComponent<RectTransform>();
         constructionInfoPanel.SetActive(false);
@@ -67,7 +113,7 @@ public class UIManager : MonoBehaviour
         // 初始设置位置
         UpdatePanelPosition(constructionInfoPanel, Input.mousePosition, constructionOffset);
         constructionInfoPanel.SetActive(true);
-        
+        Debug.Log("constructionInfoPanel.SetActive(true)");
         // 隐藏天体信息（如果正在显示）
         HideCelestialInfo();
     }
@@ -75,11 +121,13 @@ public class UIManager : MonoBehaviour
     // 显示天体信息（跟随鼠标）
     public void ShowCelestialInfo(AutoWireframeSphere celestial)
     {
+        Debug.Log("Show!!!!");
         celestialNameText.text = celestial.celestialName;
         
         // 初始设置位置
         UpdatePanelPosition(celestialInfoPanel, Input.mousePosition, celestialOffset);
         celestialInfoPanel.SetActive(true);
+        Debug.Log("celestialInfoPanel.SetActive(true)");
         
         // 隐藏建筑信息（如果正在显示）
         HideConstructionInfo();
@@ -88,11 +136,13 @@ public class UIManager : MonoBehaviour
     public void HideConstructionInfo()
     {
         constructionInfoPanel.SetActive(false);
+        Debug.Log("constructionInfoPanel.SetActive(false)");
     }
-    
+
     public void HideCelestialInfo()
     {
         celestialInfoPanel.SetActive(false);
+        Debug.Log("celestialInfoPanel.SetActive(false)");
     }
     
     // 更新UI面板位置（基于鼠标位置）

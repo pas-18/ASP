@@ -11,25 +11,25 @@ public class CelestialData : ScriptableObject
     {
         public string name;
         
-        public Vector3 abs_pos;  // ¾ø¶Ô×ø±ê(ÕæÊµ×ø±ê)
+        public Vector3 abs_pos;  // ç»å¯¹åæ ‡(çœŸå®åæ ‡)
 
-        public float abs_radius;  // ¾ø¶Ô°ë¾¶(ÕæÊµ°ë¾¶)
+        public float abs_radius;  // ç»å¯¹åŠå¾„(çœŸå®åŠå¾„)
 
-        [System.NonSerialized] public Vector3 rel_pos;  // Ïà¶Ô×ø±ê(Ïà¶ÔÓÚ½¹µãÌìÌå)
+        [System.NonSerialized] public Vector3 rel_pos;  // ç›¸å¯¹åæ ‡(ç›¸å¯¹äºç„¦ç‚¹å¤©ä½“)
 
-        [System.NonSerialized] public Vector3 display_pos;  // ĞŞÕı×ø±ê(ÓÃÓÚäÖÈ¾)
+        [System.NonSerialized] public Vector3 display_pos;  // ä¿®æ­£åæ ‡(ç”¨äºæ¸²æŸ“)
 
-        [System.NonSerialized] public float display_radius;  // ĞŞÕı°ë¾¶(ÓÃÓÚäÖÈ¾)
+        [System.NonSerialized] public float display_radius;  // ä¿®æ­£åŠå¾„(ç”¨äºæ¸²æŸ“)
         
         public Color color = Color.white;
         public Vector3 velocity;
 
-        // Ïß¿òÉèÖÃ
+        // çº¿æ¡†è®¾ç½®
         public int longitudeSegments = 24;
         public int latitudeSegments = 12;
         public float lineWidth = 0.02f;
 
-        [System.NonSerialized] public bool isFocus;  // ÊÇ·ñ×÷Îª½¹µãÌìÌå
+        [System.NonSerialized] public bool isFocus;  // æ˜¯å¦ä½œä¸ºç„¦ç‚¹å¤©ä½“
     }
 
     public List<BodyData> bodies = new List<BodyData>();

@@ -47,21 +47,7 @@ public class FocusManager : MonoBehaviour
         CoordinateManager.Instance.SetFocusBody(
             GameManager.Instance.celestialData.bodies[index]);
 
-        // 重新创建所有天体
-        FindObjectOfType<Create>().RecreateAll();
-    }
-
-    // 添加重新创建方法
-    public void RecreateAll()
-    {
-        // 销毁所有现有天体
-        foreach (var body in Create.celestialbody_list)
-        {
-            Destroy(body);
-        }
-        Create.celestialbody_list.Clear();
-
-        // 重新创建
-        GetComponent<Create>().Start();
+        // 更新位置
+        CoordinateManager.Instance.UpdateAllPositions();
     }
 }

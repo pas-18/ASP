@@ -14,9 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bodies:
   - name: Kerbin
-    abs_pos: {x: 0, y: 0, z: 0}
+    abs_pos: {x: -1.359982e+10, y: 0, z: 21659826}
     abs_radius: 600000
     color: {r: 0.5411765, g: 0.7921569, b: 0.7607843, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
+  - name: Kerbol
+    abs_pos: {x: 0, y: 0, z: 0}
+    abs_radius: 26100000
+    color: {r: 1, g: 1, b: 0.78431374, a: 1}
     velocity: {x: 0, y: 0, z: 0}
     longitudeSegments: 24
     latitudeSegments: 12

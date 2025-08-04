@@ -1,0 +1,82 @@
+Kerbol [255, 255, 245]
+
+Moho [156, 119, 89], [97, 74, 57], [238, 182, 136]
+
+Eve [71, 21, 150], [51, 16 ,108], [108, 32, 228]
+Gilly [107, 82, 72], [71, 55, 49], [162, 126, 110]
+
+Kerbin [91, 132, 128], [59, 86, 83], [138, 202, 194]
+Mun [103, 105, 119], [75, 77, 87], [156, 160, 180]
+Minmus [94, 76, 105], [60, 50, 68], [142, 116, 160]
+
+Duna [107, 41, 26], [99, 39, 26], [162, 62, 40]
+Ike [87, 90, 101], [61, 64, 71], [132, 138, 154]
+
+Dres [59 ,45, 33], [38, 28, 21], [90, 68, 50]
+
+Jool [55, 87, 13], [33, 50, 8], [84, 132, 18]
+Laythe [45, 56, 103], [29, 36, 64], [68, 86, 156]
+Vall [72, 101, 119], [52, 72, 84], [110, 154, 180]
+Tylo [139, 111, 112], [91, 74, 74], [210, 170, 170]
+Bop [123, 105, 83], [75, 65, 51], [186, 160, 126]
+Pol [145, 149, 113], [95, 98, 74], [220, 228, 172]
+
+Eeloo [68, 69, 69], [42, 43, 43], [104, 106, 106]
+
+
+
+def kepler_predict(M, R, V):
+    mu = G * M
+
+    # 确保R和V是NumPy数组
+    R = numpy.array(R)
+    V = numpy.array(V)
+
+    r = numpy.linalg.norm(R)  # 位置标量
+    H = numpy.cross(R, V)  # 角动量
+    h = numpy.linalg.norm(H)  # 角动量的模
+    N = numpy.cross([0, 0, 1], H)  # 升交线矢量
+    n = numpy.linalg.norm(N)  # 升交线矢量的模
+    # 半长轴 a
+
+    tmp = 2 / r - numpy.dot(V, V) / mu
+    if tmp == 0:  # 抛物线
+        a = numpy.dot(H, H) / mu
+    else:
+        a = abs(1 / tmp)
+
+    # 离心率 e
+    E = ((numpy.dot(V, V) - mu / r) * R - numpy.dot(R, V) * V) / mu  # 离心率矢量
+    e = numpy.linalg.norm(E)  # 离心率标量
+    if e < 1e-7:
+        e = 0
+
+    # 轨道倾角 i
+    i = math.acos(numpy.dot([0, 0, 1], H) / h)
+
+    # 近心点辐角 omega
+    if e == 0:  # 圆
+        omega = math.acos(numpy.dot(N, R) / (n * r))
+        if numpy.dot([0, 0, 1], R) < 0:
+            omega = 2 * numpy.pi - omega
+    else:
+        omega = math.acos(numpy.dot(N, E) / (n * e))
+        if numpy.dot([0, 0, 1], E) < 0:
+            omega = 2 * numpy.pi - omega
+
+    # 升交点经度 Omega
+    Omega = math.acos(numpy.dot(N, [1, 0, 0]) / n)
+    if numpy.dot(N, [0, 1, 0]) < 0:
+        Omega = 2 * numpy.pi - Omega
+
+    # 真近点角 nu
+    if e != 0:  # 非圆形轨道
+        try:
+            nu = math.acos(numpy.dot(E, R) / (e * r))
+        except:
+            nu = 0
+        if numpy.dot(R, V) < 0:
+            nu = 2 * numpy.pi - nu
+    else:
+        nu = 0
+    return a, e, i, numpy.nan_to_num(Omega, nan=0.0), numpy.nan_to_num(omega, nan=0.0), nu

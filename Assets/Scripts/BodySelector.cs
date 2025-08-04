@@ -96,6 +96,8 @@ public class BodySelector : MonoBehaviour
                 if (cameraController != null)
                 {
                     cameraController.focus_body = selectedBody.name;
+                    CoordinateManager.Instance.SetFocusBody(
+                        GameManager.Instance.celestialData.bodies.Find(b => b.name == selectedBody.name));
                     Debug.Log($"«–ªªΩπµ„µΩ: {selectedBody.name}");
                 }
                 else
@@ -103,6 +105,7 @@ public class BodySelector : MonoBehaviour
                     Debug.LogError("Œ¥’“µΩ CameraController");
                 }
             }
+            CoordinateManager.Instance.UpdateAllPositions();
         }
     }
 }

@@ -34,12 +34,6 @@ public class Create : MonoBehaviour
         // 初始化坐标管理器
         CoordinateManager coordManager = gameObject.AddComponent<CoordinateManager>();
 
-        // 设置第一个天体为焦点
-        if (celestialData.bodies.Count > 0)
-        {
-            coordManager.SetFocusBody(celestialData.bodies[0]);
-        }
-
         CreateCelestialBodies();
         CreateConstructions();
     }
