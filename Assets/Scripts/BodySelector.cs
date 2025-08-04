@@ -6,46 +6,48 @@ using System.Collections.Generic;
 public class BodySelector : MonoBehaviour
 {
     public TMP_Dropdown dropdown;
-    public TMP_Text debugText; // ÓÃÓÚµ÷ÊÔµÄÎÄ±¾×é¼ş£¨¿ÉÑ¡£©
+    public TMP_Text debugText; // ç”¨äºè°ƒè¯•çš„æ–‡æœ¬ç»„ä»¶ï¼ˆå¯é€‰ï¼‰
 
     void Start()
     {
-        // È·±£ÓĞDropdownÒıÓÃ
+        // ç¡®ä¿æœ‰Dropdownå¼•ç”¨
         if (dropdown == null)
         {
-            Debug.LogError("Dropdown Î´·ÖÅä£¡");
+            Debug.LogError("Dropdown æœªåˆ†é…ï¼");
             return;
         }
 
-        // ÊÖ¶¯°ó¶¨ÊÂ¼ş
+        // æ‰‹åŠ¨ç»‘å®šäº‹ä»¶
         dropdown.onValueChanged.AddListener(OnBodySelected);
 
-        // ¿ªÊ¼Ğ­³Ì³õÊ¼»¯
+        // å¼€å§‹åç¨‹åˆå§‹åŒ–
         StartCoroutine(InitializeAfterDelay());
+
+        OnBodySelected(0);
     }
 
     IEnumerator InitializeAfterDelay()
     {
-        // µÈ´ıÁ½Ö¡È·±£ËùÓĞ¶ÔÏóÒÑ´´½¨
+        // ç­‰å¾…ä¸¤å¸§ç¡®ä¿æ‰€æœ‰å¯¹è±¡å·²åˆ›å»º
         yield return null;
         yield return null;
 
-        // ¼ì²éÌìÌåÁĞ±í
+        // æ£€æŸ¥å¤©ä½“åˆ—è¡¨
         if (Create.celestialbody_list == null)
         {
-            UpdateDebugText("ÌìÌåÁĞ±íÎªnull");
-            Debug.LogError("ÌìÌåÁĞ±íÎªnull");
+            UpdateDebugText("å¤©ä½“åˆ—è¡¨ä¸ºnull");
+            Debug.LogError("å¤©ä½“åˆ—è¡¨ä¸ºnull");
             yield break;
         }
 
         if (Create.celestialbody_list.Count == 0)
         {
-            UpdateDebugText("ÌìÌåÁĞ±íÎª¿Õ");
-            Debug.LogWarning("ÌìÌåÁĞ±íÎª¿Õ");
+            UpdateDebugText("å¤©ä½“åˆ—è¡¨ä¸ºç©º");
+            Debug.LogWarning("å¤©ä½“åˆ—è¡¨ä¸ºç©º");
             yield break;
         }
 
-        // ´´½¨Ñ¡ÏîÁĞ±í
+        // åˆ›å»ºé€‰é¡¹åˆ—è¡¨
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
 
         foreach (GameObject body in Create.celestialbody_list)
@@ -56,25 +58,25 @@ public class BodySelector : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("·¢ÏÖ¿ÕµÄÌìÌå¶ÔÏó");
+                Debug.LogWarning("å‘ç°ç©ºçš„å¤©ä½“å¯¹è±¡");
             }
         }
 
         if (options.Count == 0)
         {
-            UpdateDebugText("Ñ¡ÏîÁĞ±íÎª¿Õ");
-            Debug.LogWarning("Ñ¡ÏîÁĞ±íÎª¿Õ");
+            UpdateDebugText("é€‰é¡¹åˆ—è¡¨ä¸ºç©º");
+            Debug.LogWarning("é€‰é¡¹åˆ—è¡¨ä¸ºç©º");
             yield break;
         }
 
-        // Ìî³äÏÂÀ­²Ëµ¥
+        // å¡«å……ä¸‹æ‹‰èœå•
         dropdown.ClearOptions();
         dropdown.AddOptions(options);
         dropdown.value = 0;
         dropdown.RefreshShownValue();
 
-        UpdateDebugText($"³É¹¦Ìí¼Ó {options.Count} ¸öÑ¡Ïî");
-        Debug.Log($"³É¹¦Ìí¼Ó {options.Count} ¸öÑ¡Ïî");
+        UpdateDebugText($"æˆåŠŸæ·»åŠ  {options.Count} ä¸ªé€‰é¡¹");
+        Debug.Log($"æˆåŠŸæ·»åŠ  {options.Count} ä¸ªé€‰é¡¹");
     }
 
     void UpdateDebugText(string message)
@@ -98,11 +100,11 @@ public class BodySelector : MonoBehaviour
                     cameraController.focus_body = selectedBody.name;
                     CoordinateManager.Instance.SetFocusBody(
                         GameManager.Instance.celestialData.bodies.Find(b => b.name == selectedBody.name));
-                    Debug.Log($"ÇĞ»»½¹µãµ½: {selectedBody.name}");
+                    Debug.Log($"åˆ‡æ¢ç„¦ç‚¹åˆ°: {selectedBody.name}");
                 }
                 else
                 {
-                    Debug.LogError("Î´ÕÒµ½ CameraController");
+                    Debug.LogError("æœªæ‰¾åˆ° CameraController");
                 }
             }
             CoordinateManager.Instance.UpdateAllPositions();

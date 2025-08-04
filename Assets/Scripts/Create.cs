@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class Create : MonoBehaviour
 {
+    public static Create Instance;
+
     [Header("天体设置")]
     public CelestialData celestialData; // 拖入创建的数据资源
     public GameObject bodyPrefab;       // 拖入天体预制体
@@ -13,6 +15,12 @@ public class Create : MonoBehaviour
     public GameObject constructionPrefab; // 建筑预制体
 
     public static List<GameObject> celestialbody_list = new List<GameObject>();
+
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     public void Start()
     {
@@ -37,6 +45,7 @@ public class Create : MonoBehaviour
         CreateCelestialBodies();
         CreateConstructions();
     }
+
 
     void CreateCelestialBodies()
     {
@@ -72,6 +81,7 @@ public class Create : MonoBehaviour
 
             // 设置线框属性
             wireframeSphere.celestialName = body.name;
+            wireframeSphere.abs_radius = body.abs_radius;
             wireframeSphere.longitudeSegments = body.longitudeSegments;
             wireframeSphere.latitudeSegments = body.latitudeSegments;
             wireframeSphere.lineWidth = body.lineWidth;
@@ -117,6 +127,7 @@ public class Create : MonoBehaviour
 
         foreach (var construction in constructionSet.Constructions)
         {
+            Debug.Log(construction.GetType().Name);
             // 查找所属天体
             // Debug.Log("FFFFFFFF");
             GameObject celestialBody = FindCelestialBody(construction.Celestial);
@@ -126,8 +137,6 @@ public class Create : MonoBehaviour
                 continue;
             }
 
-            // 获取天体数据
-            AutoWireframeSphere wireframe = celestialBody.GetComponent<AutoWireframeSphere>();
             float celestialRadius = CoordinateManager.Instance.GetBodyRadius(
                 celestialData.bodies.Find(b => b.name == construction.Celestial));
 
@@ -174,7 +183,7 @@ public class Create : MonoBehaviour
     }
 
     // 根据经纬度计算球面上的位置
-    Vector3 CalculateSurfacePosition(Vector3 center, float radius, float latitude, float longitude)
+    public Vector3 CalculateSurfacePosition(Vector3 center, float radius, float latitude, float longitude)
     {
         // 将经纬度转换为弧度
         float latRad = latitude * Mathf.Deg2Rad;

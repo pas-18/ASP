@@ -1,7 +1,8 @@
 // LatitudeLongitudeSphere.cs
 // AutoWireframeSphere
 using UnityEngine;
-using System.Collections.Generic; // 添加List支持
+using System.Collections.Generic;
+using Unity.VisualScripting; // 添加List支持
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class AutoWireframeSphere : MonoBehaviour
@@ -22,6 +23,7 @@ public class AutoWireframeSphere : MonoBehaviour
     public string celestialName;
     public Material wireframeMaterial;
     public CelestialData.BodyData celestialBodyData;
+    public float abs_radius;
 
     // 私有变量
     private Mesh mesh;
@@ -48,13 +50,11 @@ public class AutoWireframeSphere : MonoBehaviour
         // Debug.Log("Enter"+on_mouse.ToString());
     }
 
-    /*
     private void OnMouseExit()
     {
         on_mouse = false;
         // Debug.Log("Exit"+on_mouse.ToString());
     }
-    */
 
     public void GenerateWireframe()
     {
@@ -133,59 +133,69 @@ public class AutoWireframeSphere : MonoBehaviour
         {
             GenerateWireframe();
         }
-        //Debug.Log(on_mouse);
+        Debug.Log(celestialName+on_mouse.ToString());
+
         if (on_mouse)
         {
             // 使用射线检测确定实际命中的物体
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                // 检查是否命中了建筑（子物体）
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Constructions"))
-                {
-                    on_construction = true;
-                    on_celestial = false;
-                    UIManager.Instance.HideCelestialInfo();
-                    // 获取建筑组件
-                    OrbitalConstruction construction = hit.collider.GetComponent<OrbitalConstruction>();
-                    if (construction != null)
-                    {
-                        // 直接调用建筑的显示方法
-                        //Debug.Log("Construction!");
-                        construction.ShowConstructionInfo();
-                    }
-                }
+                //Debug.Log("Hit"+celestialName+hit.collider.gameObject.layer.ToString()+"/"+LayerMask.NameToLayer("Celestial").ToString());
                 // 检查是否命中了当前天体（父物体）
-                else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Celestial"))
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Celestials"))
                 {
                     on_construction = false;
                     on_celestial = true;
-                    UIManager.Instance.HideConstructionInfo();
-                    //Debug.Log("Celestial OnMouseEnter: " + celestialName);
                     UIManager.Instance.ShowCelestialInfo(this);
+                    Debug.Log("ShowCelestialInfo:" + celestialName);
                 }
-                else{
-                    UIManager.Instance.HideCelestialInfo();
-                    on_celestial = false;
-                    
-                    UIManager.Instance.HideConstructionInfo();
-                    on_construction = false;
+
+                // 检查是否命中了建筑（子物体）
+                else if (celestialName == CoordinateManager.Instance.focusbodyname)
+                {
+                    if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Constructions"))
+                    {
+                        on_construction = true;
+                        on_celestial = false;
+                        Debug.Log("HideCelestialInfo:" + celestialName);
+                        // 获取建筑组件
+                        OrbitalConstruction construction = hit.collider.GetComponent<OrbitalConstruction>();
+                        construction.ShowConstructionInfo();
+                    }
                 }
             }
         }
-        /*
-        else
+
+        else if (celestialName == CoordinateManager.Instance.focusbodyname)
         {
             UIManager.Instance.HideCelestialInfo();
+            UIManager.Instance.HideConstructionInfo();
+
         }
-        */
 
         if (celestialBodyData != null)
         {
             transform.position = celestialBodyData.display_pos;
             transform.localScale = Vector3.one * celestialBodyData.display_radius;
+        }
+
+        if (celestialName == CoordinateManager.Instance.focusbodyname)
+        {
+            foreach (Transform child in transform) // 直接遍历transform的子级
+            {
+                OrbitalConstruction orbitalConstruction = child.gameObject.GetComponent<OrbitalConstruction>();
+
+                // 计算建筑在球面上的位置
+                Vector3 position = Create.Instance.CalculateSurfacePosition(
+                    Vector3.zero,
+                    abs_radius / 600000,
+                    orbitalConstruction.latitude,
+                    orbitalConstruction.longitude
+                );
+                child.gameObject.transform.position = position;
+            }
         }
     }
 

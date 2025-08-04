@@ -11,6 +11,7 @@ public class OrbitalConstruction : MonoBehaviour
     public float latitude;
     public float longitude;
 
+
     public float radius = 0.1f;
     public float lineWidth = 0.02f;
     public Color color = Color.white;
@@ -19,6 +20,7 @@ public class OrbitalConstruction : MonoBehaviour
     private Renderer constructionRenderer;
     private Material constructionMaterial;
     private SphereCollider collider;
+
 
     void Start()
     {
@@ -104,43 +106,6 @@ public class OrbitalConstruction : MonoBehaviour
     }
 
 
-    // 优化可见性检测
-    private bool IsVisibleFromCamera()
-    {
-        Camera mainCamera = Camera.main;
-        if (mainCamera == null) return false;
-
-        // 检查是否在相机视野内
-        Vector3 viewportPos = mainCamera.WorldToViewportPoint(transform.position);
-        if (viewportPos.z < 0 || viewportPos.x < 0 || viewportPos.x > 1 ||
-            viewportPos.y < 0 || viewportPos.y > 1)
-        {
-            return false;
-        }
-
-        // 检查遮挡
-        Vector3 direction = transform.position - mainCamera.transform.position;
-        float distance = direction.magnitude;
-        direction.Normalize();
-
-        Ray ray = new Ray(mainCamera.transform.position, direction);
-        if (Physics.Raycast(ray, out RaycastHit hit, distance))
-        {
-            // 如果命中天体且是当前父物体
-            if (hit.collider.transform == transform.parent)
-            {
-                // 检查是否在背面
-                Vector3 toBuilding = transform.position - hit.point;
-                return Vector3.Dot(toBuilding, hit.normal) >= 0;
-            }
-            // 如果命中其他物体
-            return false;
-        }
-
-        return true;
-    }
-
-
     public void ShowConstructionInfo()
     {
         Debug.Log($"建筑触发: {constructionName}");
@@ -151,18 +116,6 @@ public class OrbitalConstruction : MonoBehaviour
             UIManager.Instance.ShowConstructionInfo(this, transform.position); 
         }
         */
-    }
-
-    private bool IsMouseOverThisConstruction()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            return hit.collider.gameObject == this.gameObject;
-        }
-        return false;
     }
 
     // 确保圆圈始终面向天体中心

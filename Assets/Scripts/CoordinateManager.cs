@@ -9,10 +9,11 @@ public class CoordinateManager : MonoBehaviour
 
     public const float FLOAT_PRECISION_THRESHOLD = 1000f;  // 压缩阈值
     public bool ensureMinViewAngle = false; // UI开关
-    public float minViewAngle = 2f; // 最小视角(度)
+    public float minViewAngle = 0f; // 最小视角(度)
 
     // 当前焦点天体
     private CelestialData.BodyData focusBody;
+    public string focusbodyname;
     private Camera mainCamera;
 
     void Awake()
@@ -26,6 +27,7 @@ public class CoordinateManager : MonoBehaviour
     {
         focusBody = body;
         focusBody.isFocus = true;
+        focusbodyname = focusBody.name;
         UpdateAllPositions();
     }
 
@@ -45,6 +47,7 @@ public class CoordinateManager : MonoBehaviour
         
         foreach (var body in GameManager.Instance.celestialData.bodies)
         {
+            Debug.Log(body.name);
             // 基本缩放
             Vector3 relPos = (body.abs_pos - focusBody.abs_pos) / scaleFactor;
             float baseRadius = body.abs_radius / scaleFactor;
@@ -53,12 +56,14 @@ public class CoordinateManager : MonoBehaviour
             float distance = relPos.magnitude;
             if (distance > FLOAT_PRECISION_THRESHOLD)
             {
+                Debug.Log("FLOAT_PRECISION_THRESHOLD:"+body.name);
                 float compressionRatio = FLOAT_PRECISION_THRESHOLD / distance;
                 body.display_pos = relPos * compressionRatio;
                 body.display_radius = baseRadius * compressionRatio;
             }
             else
             {
+                Debug.Log("NoOperation:" + body.name);
                 body.display_pos = relPos;
                 body.display_radius = baseRadius;
             }

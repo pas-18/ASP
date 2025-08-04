@@ -7,20 +7,20 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
 
-    // ½¨ÖşĞÅÏ¢UI
+    // å»ºç­‘ä¿¡æ¯UI
     public GameObject constructionInfoPanel;
     public TMP_Text constructionNameText;
     public TMP_Text constructionCoordinatesText;
-    public Vector2 constructionOffset = new Vector2(20, -20); // ÓÒÏÂ½ÇÆ«ÒÆ
+    public Vector2 constructionOffset = new Vector2(20, -20); // å³ä¸‹è§’åç§»
     
-    // ÌìÌåĞÅÏ¢UI
+    // å¤©ä½“ä¿¡æ¯UI
     public GameObject celestialInfoPanel;
     public TMP_Text celestialNameText;
-    public Vector2 celestialOffset = new Vector2(-20, 20); // ×óÏÂ½ÇÆ«ÒÆ
+    public Vector2 celestialOffset = new Vector2(-20, 20); // å·¦ä¸‹è§’åç§»
     
     private RectTransform canvasRect;
 
-    [Header("ÊÓ½Ç¿ØÖÆ")]
+    [Header("è§†è§’æ§åˆ¶")]
     public Toggle viewAngleToggle;
     public Slider viewAngleSlider;
     public TMP_Text viewAngleText;
@@ -28,7 +28,7 @@ public class UIManager : MonoBehaviour
     
     void Start()
     {
-        // ³õÊ¼»¯ÊÓ½Ç¿ØÖÆ
+        // åˆå§‹åŒ–è§†è§’æ§åˆ¶
         if (viewAngleToggle != null)
         {
             viewAngleToggle.isOn = CoordinateManager.Instance.ensureMinViewAngle;
@@ -60,7 +60,7 @@ public class UIManager : MonoBehaviour
     {
         if (viewAngleText != null)
         {
-            viewAngleText.text = $"×îĞ¡ÊÓ½Ç: {viewAngleSlider.value:F1}¡ã";
+            viewAngleText.text = $"æœ€å°è§†è§’: {viewAngleSlider.value:F3}rad";
         }
     }
 
@@ -75,7 +75,7 @@ public class UIManager : MonoBehaviour
     
     void Update()
     {
-        // ¸üĞÂUIÎ»ÖÃ£¨Èç¹ûÕıÔÚÏÔÊ¾£©
+        // æ›´æ–°UIä½ç½®ï¼ˆå¦‚æœæ­£åœ¨æ˜¾ç¤ºï¼‰
         if (constructionInfoPanel.activeSelf)
         {
             UpdatePanelPosition(constructionInfoPanel, Input.mousePosition, constructionOffset);
@@ -87,72 +87,67 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    // ÏÔÊ¾½¨ÖşĞÅÏ¢£¨¸úËæÊó±ê£©
+    // æ˜¾ç¤ºå»ºç­‘ä¿¡æ¯ï¼ˆè·Ÿéšé¼ æ ‡ï¼‰
     public void ShowConstructionInfo(OrbitalConstruction construction)
     {
         constructionNameText.text = construction.constructionName;
         string text_s = $"{construction.name}\n";
         if (construction.longitude > 0)
         {
-            text_s += $"{construction.longitude:F2}¡ãN\t";
+            text_s += $"{construction.longitude:F2}Â°N\t";
         }
         else
         {
-            text_s += $"{-construction.longitude:F2}¡ãS\t";
+            text_s += $"{-construction.longitude:F2}Â°S\t";
         }
         if (construction.latitude > 0)
         {
-            text_s += $" {construction.latitude:F2}¡ãE";
+            text_s += $" {construction.latitude:F2}Â°E";
         }
         else
         {
-            text_s += $" {-construction.latitude:F2}¡ãW";
+            text_s += $" {-construction.latitude:F2}Â°W";
         }
         constructionCoordinatesText.text = text_s;
         
-        // ³õÊ¼ÉèÖÃÎ»ÖÃ
+        // åˆå§‹è®¾ç½®ä½ç½®
         UpdatePanelPosition(constructionInfoPanel, Input.mousePosition, constructionOffset);
         constructionInfoPanel.SetActive(true);
-        Debug.Log("constructionInfoPanel.SetActive(true)");
-        // Òş²ØÌìÌåĞÅÏ¢£¨Èç¹ûÕıÔÚÏÔÊ¾£©
+        // éšè—å¤©ä½“ä¿¡æ¯ï¼ˆå¦‚æœæ­£åœ¨æ˜¾ç¤ºï¼‰
         HideCelestialInfo();
     }
     
-    // ÏÔÊ¾ÌìÌåĞÅÏ¢£¨¸úËæÊó±ê£©
+    // æ˜¾ç¤ºå¤©ä½“ä¿¡æ¯ï¼ˆè·Ÿéšé¼ æ ‡ï¼‰
     public void ShowCelestialInfo(AutoWireframeSphere celestial)
     {
-        Debug.Log("Show!!!!");
         celestialNameText.text = celestial.celestialName;
         
-        // ³õÊ¼ÉèÖÃÎ»ÖÃ
+        // åˆå§‹è®¾ç½®ä½ç½®
         UpdatePanelPosition(celestialInfoPanel, Input.mousePosition, celestialOffset);
         celestialInfoPanel.SetActive(true);
-        Debug.Log("celestialInfoPanel.SetActive(true)");
         
-        // Òş²Ø½¨ÖşĞÅÏ¢£¨Èç¹ûÕıÔÚÏÔÊ¾£©
+        // éšè—å»ºç­‘ä¿¡æ¯ï¼ˆå¦‚æœæ­£åœ¨æ˜¾ç¤ºï¼‰
         HideConstructionInfo();
     }
     
     public void HideConstructionInfo()
     {
         constructionInfoPanel.SetActive(false);
-        Debug.Log("constructionInfoPanel.SetActive(false)");
     }
 
     public void HideCelestialInfo()
     {
         celestialInfoPanel.SetActive(false);
-        Debug.Log("celestialInfoPanel.SetActive(false)");
     }
     
-    // ¸üĞÂUIÃæ°åÎ»ÖÃ£¨»ùÓÚÊó±êÎ»ÖÃ£©
+    // æ›´æ–°UIé¢æ¿ä½ç½®ï¼ˆåŸºäºé¼ æ ‡ä½ç½®ï¼‰
     private void UpdatePanelPosition(GameObject panel, Vector2 mousePosition, Vector2 offset)
     {
         Vector2 screenPoint = mousePosition;
         
         Vector2 finalPosition = screenPoint + offset;
         
-        // È·±£UIÔÚÆÁÄ»ÄÚ
+        // ç¡®ä¿UIåœ¨å±å¹•å†…
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         float width = panelRect.rect.width;
         float height = panelRect.rect.height;

@@ -29,3 +29,27 @@ MonoBehaviour:
     longitudeSegments: 24
     latitudeSegments: 12
     lineWidth: 0.1
+  - name: Moho
+    abs_pos: {x: -568676200, y: -198406800, z: -6.286981e+9}
+    abs_radius: 250000
+    color: {r: 0.93333334, g: 0.7137255, b: 0.53333336, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
+  - name: Eve
+    abs_pos: {x: -9.596619e+9, y: 568132.4, z: -2.555366e+9}
+    abs_radius: 700000
+    color: {r: 0.42352942, g: 0.1254902, b: 0.89411765, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
+  - name: Duna
+    abs_pos: {x: 1.551487e+10, y: 32847.34, z: -1.529039e+10}
+    abs_radius: 320000
+    color: {r: 0.6392157, g: 0.16862746, b: 0.0627451, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
