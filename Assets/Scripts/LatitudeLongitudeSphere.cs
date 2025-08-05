@@ -133,7 +133,8 @@ public class AutoWireframeSphere : MonoBehaviour
         {
             GenerateWireframe();
         }
-        Debug.Log(celestialName+on_mouse.ToString());
+
+        // Debug.Log(celestialName+on_mouse.ToString());
 
         if (on_mouse)
         {
@@ -178,6 +179,7 @@ public class AutoWireframeSphere : MonoBehaviour
         if (celestialBodyData != null)
         {
             transform.position = celestialBodyData.display_pos;
+            Debug.Log(celestialName+":"+celestialBodyData.display_pos.ToString());
             transform.localScale = Vector3.one * celestialBodyData.display_radius;
         }
 
