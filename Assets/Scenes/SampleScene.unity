@@ -1898,7 +1898,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 2500
+  far clip plane: 3000
   field of view: 40
   orthographic: 0
   orthographic size: 5
@@ -1949,7 +1949,7 @@ MonoBehaviour:
   rotationSpeed: 1
   zoomSpeed: 0.45
   minDistance: 5
-  maxDistance: 500
+  maxDistance: 1500
 --- !u!1 &988169254
 GameObject:
   m_ObjectHideFlags: 0
@@ -2756,6 +2756,7 @@ MonoBehaviour:
   ensureMinViewAngle: 0
   minViewAngle: 2
   focusbodyname: 
+  updateInterval: 0.1
 --- !u!4 &1725193120
 Transform:
   m_ObjectHideFlags: 0

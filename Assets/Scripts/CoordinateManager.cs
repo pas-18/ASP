@@ -7,22 +7,33 @@ public class CoordinateManager : MonoBehaviour
 {
     public static CoordinateManager Instance;
 
-    public const float FLOAT_PRECISION_THRESHOLD = 1000f;  // Ñ¹ËõãĞÖµ
-    public bool ensureMinViewAngle = false; // UI¿ª¹Ø
-    public float minViewAngle = 0f; // ×îĞ¡ÊÓ½Ç(¶È)
+    public const float FLOAT_PRECISION_THRESHOLD = 1000f;  // å‹ç¼©é˜ˆå€¼
+    public bool ensureMinViewAngle = false; // UIå¼€å…³
+    public float minViewAngle = 0f; // æœ€å°è§†è§’(åº¦)
 
-    // µ±Ç°½¹µãÌìÌå
+    // å½“å‰ç„¦ç‚¹å¤©ä½“
     private CelestialData.BodyData focusBody;
     public string focusbodyname;
     private Camera mainCamera;
+    public float updateInterval = 0.1f; // æ¯ç§’æ›´æ–°10æ¬¡
+    private float lastUpdateTime;
 
     void Awake()
     {
         Instance = this;
         mainCamera = Camera.main;
     }
+    
+    void Update()
+    {
+        if (Time.time - lastUpdateTime > updateInterval)
+        {
+            UpdateAllPositions();
+            lastUpdateTime = Time.time;
+        }
+    }
 
-    // ÉèÖÃ½¹µãÌìÌå
+    // è®¾ç½®ç„¦ç‚¹å¤©ä½“
     public void SetFocusBody(CelestialData.BodyData body)
     {
         focusBody = body;
@@ -31,28 +42,35 @@ public class CoordinateManager : MonoBehaviour
         UpdateAllPositions();
     }
 
-    // »ñÈ¡½¹µãÌìÌå
+    // è·å–ç„¦ç‚¹å¤©ä½“
     public CelestialData.BodyData GetFocusBody()
     {
         return focusBody;
     }
 
-    // ¸üĞÂËùÓĞÌìÌåµÄÎ»ÖÃ
+    // æ›´æ–°æ‰€æœ‰å¤©ä½“çš„ä½ç½®
     public void UpdateAllPositions()
     {
         if (focusBody == null || mainCamera == null) return;
 
-        float scaleFactor = 600000; // Ëõ·Å»ù×¼600,000
+        float scaleFactor = 600000; // ç¼©æ”¾åŸºå‡†600,000
         Vector3 cameraPos = mainCamera.transform.position;
         
         foreach (var body in GameManager.Instance.celestialData.bodies)
         {
             Debug.Log(body.name);
-            // »ù±¾Ëõ·Å
+             // ç„¦ç‚¹å¤©ä½“å§‹ç»ˆä½äºåŸç‚¹
+            if (body == focusBody)
+            {
+                body.display_pos = Vector3.zero;
+                body.display_radius = body.abs_radius / scaleFactor;
+                continue;
+            }
+            // åŸºæœ¬ç¼©æ”¾
             Vector3 relPos = (body.abs_pos - focusBody.abs_pos) / scaleFactor;
             float baseRadius = body.abs_radius / scaleFactor;
 
-            // Ñ¹Ëõ´¦Àí
+            // å‹ç¼©å¤„ç†
             float distance = relPos.magnitude;
             if (distance > FLOAT_PRECISION_THRESHOLD)
             {
@@ -68,7 +86,7 @@ public class CoordinateManager : MonoBehaviour
                 body.display_radius = baseRadius;
             }
 
-            // ÊÓ½Ç±£Ö¤
+            // è§†è§’ä¿è¯
             if (ensureMinViewAngle)
             {
                 EnsureMinViewAngle(body, cameraPos);
@@ -81,29 +99,29 @@ public class CoordinateManager : MonoBehaviour
 
     private void EnsureMinViewAngle(CelestialData.BodyData body, Vector3 cameraPos)
     {
-        // ¼ÆËãÌìÌåµ½Ïà»úµÄÏòÁ¿
+        // è®¡ç®—å¤©ä½“åˆ°ç›¸æœºçš„å‘é‡
         Vector3 toBody = body.display_pos - cameraPos;
         float distanceToCamera = toBody.magnitude;
         
-        // ±ÜÃâ³ıÒÔÁã
+        // é¿å…é™¤ä»¥é›¶
         if (distanceToCamera < 0.001f) return;
         
-        // ¼ÆËãµ±Ç°ÊÓ½Ç(»¡¶È)
+        // è®¡ç®—å½“å‰è§†è§’(å¼§åº¦)
         float currentAngleRad = Mathf.Atan2(body.display_radius, distanceToCamera);
         float currentAngleDeg = currentAngleRad * Mathf.Rad2Deg;
         float minAngleRad = minViewAngle * Mathf.Deg2Rad;
         
-        // Èç¹ûµ±Ç°ÊÓ½ÇĞ¡ÓÚ×îĞ¡ÊÓ½Ç
+        // å¦‚æœå½“å‰è§†è§’å°äºæœ€å°è§†è§’
         if (currentAngleDeg < minViewAngle)
         {
-            // ¼ÆËãËùĞè°ë¾¶ÒÔ±£Ö¤×îĞ¡ÊÓ½Ç
+            // è®¡ç®—æ‰€éœ€åŠå¾„ä»¥ä¿è¯æœ€å°è§†è§’
             float requiredRadius = distanceToCamera * Mathf.Tan(minAngleRad);
             body.display_radius = requiredRadius;
         }
     }
 
 
-    // ¸üĞÂÓÎÏ·¶ÔÏóÎ»ÖÃ
+    // æ›´æ–°æ¸¸æˆå¯¹è±¡ä½ç½®
     private void UpdateBodyPositions()
     {
         foreach (var bodyData in GameManager.Instance.celestialData.bodies)
@@ -114,7 +132,7 @@ public class CoordinateManager : MonoBehaviour
                 bodyObj.transform.position = bodyData.display_pos;
                 bodyObj.transform.localScale = Vector3.one * bodyData.display_radius;
 
-                // ¸üĞÂÏß¿ò
+                // æ›´æ–°çº¿æ¡†
                 AutoWireframeSphere wireframe = bodyObj.GetComponent<AutoWireframeSphere>();
                 if (wireframe != null)
                 {
@@ -124,13 +142,13 @@ public class CoordinateManager : MonoBehaviour
         }
     }
 
-    // »ñÈ¡ÌìÌåÔÚ³¡¾°ÖĞµÄÎ»ÖÃ
+    // è·å–å¤©ä½“åœ¨åœºæ™¯ä¸­çš„ä½ç½®
     public Vector3 GetBodyPosition(CelestialData.BodyData body)
     {
         return body.display_pos;
     }
 
-    // »ñÈ¡ÌìÌåÔÚ³¡¾°ÖĞµÄ°ë¾¶
+    // è·å–å¤©ä½“åœ¨åœºæ™¯ä¸­çš„åŠå¾„
     public float GetBodyRadius(CelestialData.BodyData body)
     {
         if(body == null)

@@ -12,44 +12,44 @@ public class CameraController : MonoBehaviour
     [SerializeField] private TMP_Text debugText;
     private StringBuilder sb = new StringBuilder();
 
-    // ½¹µãÉèÖÃ
-    public string focus_body = "Kerbin"; // Ä¬ÈÏ½¹µãÌìÌå
-    private Vector3 focus_pos = Vector3.zero; // ½¹µãÎ»ÖÃ
+    // ç„¦ç‚¹è®¾ç½®
+    public string focus_body = "Kerbin"; // é»˜è®¤ç„¦ç‚¹å¤©ä½“
+    private Vector3 focus_pos = Vector3.zero; // ç„¦ç‚¹ä½ç½®
 
-    // Ïà»úÇò×ø±ê²ÎÊı [r, theta, fai]
-    // r: Ïà»úµ½½¹µãµÄ¾àÀë
-    // theta: ´¹Ö±½Ç¶È (0-¦Ğ)£¬0=ÕıÉÏ·½£¬¦Ğ=ÕıÏÂ·½
-    // fai: Ë®Æ½½Ç¶È (0-2¦Ğ)£¬0=ÕıÇ°·½
+    // ç›¸æœºçƒåæ ‡å‚æ•° [r, theta, fai]
+    // r: ç›¸æœºåˆ°ç„¦ç‚¹çš„è·ç¦»
+    // theta: å‚ç›´è§’åº¦ (0-Ï€)ï¼Œ0=æ­£ä¸Šæ–¹ï¼ŒÏ€=æ­£ä¸‹æ–¹
+    // fai: æ°´å¹³è§’åº¦ (0-2Ï€)ï¼Œ0=æ­£å‰æ–¹
     private Vector3 camera_data = new Vector3(50f, Mathf.PI / 4f, 0f);
 
-    // Ïà»ú¿ØÖÆ²ÎÊı
-    public float rotationSpeed = 2f;     // Ğı×ªËÙ¶È
-    public float zoomSpeed = 10f;        // Ëõ·ÅËÙ¶È
-    public float minDistance = 5f;       // ×îĞ¡¾àÀë
-    public float maxDistance = 500f;     // ×î´ó¾àÀë
+    // ç›¸æœºæ§åˆ¶å‚æ•°
+    public float rotationSpeed = 2f;     // æ—‹è½¬é€Ÿåº¦
+    public float zoomSpeed = 10f;        // ç¼©æ”¾é€Ÿåº¦
+    public float minDistance = 5f;       // æœ€å°è·ç¦»
+    public float maxDistance = 1500f;     // æœ€å¤§è·ç¦»
 
-    // Êó±ê¿ØÖÆ±äÁ¿
-    private Vector2 lastMousePosition;   // ÉÏÒ»Ö¡Êó±êÎ»ÖÃ
-    private bool isRightMouseDown = false; // ÓÒ¼üÊÇ·ñ°´ÏÂ
+    // é¼ æ ‡æ§åˆ¶å˜é‡
+    private Vector2 lastMousePosition;   // ä¸Šä¸€å¸§é¼ æ ‡ä½ç½®
+    private bool isRightMouseDown = false; // å³é”®æ˜¯å¦æŒ‰ä¸‹
 
     void Start()
     {
-        // ³õÊ¼»¯Îªµ±Ç°Êó±êÎ»ÖÃ
+        // åˆå§‹åŒ–ä¸ºå½“å‰é¼ æ ‡ä½ç½®
         lastMousePosition = Input.mousePosition;
     }
 
     void Update()
     {
-        // 1. ¸üĞÂ½¹µãÎ»ÖÃ
+        // 1. æ›´æ–°ç„¦ç‚¹ä½ç½®
         UpdateFocusPosition();
 
-        // 2. ´¦ÀíÊó±ê¹öÂÖËõ·Å
+        // 2. å¤„ç†é¼ æ ‡æ»šè½®ç¼©æ”¾
         HandleMouseWheel();
 
-        // 3. ´¦ÀíÓÒ¼üĞı×ª
+        // 3. å¤„ç†å³é”®æ—‹è½¬
         HandleRightMouseRotation();
 
-        // 4. ¸üĞÂÏà»úÎ»ÖÃ
+        // 4. æ›´æ–°ç›¸æœºä½ç½®
         UpdateCameraPosition();
 
         UpdateDebugText();
@@ -57,14 +57,15 @@ public class CameraController : MonoBehaviour
 
     void UpdateFocusPosition()
     {
-        // ±éÀúËùÓĞÌìÌå£¬ÕÒµ½½¹µãÌìÌåµÄÎ»ÖÃ
+        focus_pos = Vector3.zero;
+        
         foreach (GameObject body in Create.celestialbody_list)
         {
             if (body.name == focus_body)
             {
-                focus_pos = body.transform.position;
-                minDistance = (float)(1.5 * body.transform.lossyScale.x);  // ×îĞ¡¾àÀëÓëÌìÌå°ë¾¶ÓĞ¹Ø
-                if(camera_data.x < minDistance)
+                minDistance = (float)(1.5 * body.transform.lossyScale.x);
+
+                if (camera_data.x < minDistance)
                 {
                     camera_data.x = minDistance;
                 }
@@ -78,7 +79,7 @@ public class CameraController : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0)
         {
-            // ¹öÂÖÏòÉÏ +¾àÀë£¬ÏòÏÂ -¾àÀë
+            // æ»šè½®å‘ä¸Š +è·ç¦»ï¼Œå‘ä¸‹ -è·ç¦»
             if(scroll < 0)
             {
                 camera_data.x = (float)(minDistance + (camera_data.x - 0.7 * minDistance) * Math.Pow((1 + zoomSpeed), Math.Abs(scroll)));
@@ -89,42 +90,42 @@ public class CameraController : MonoBehaviour
             }
                 // camera_data.x -= scroll * zoomSpeed;
 
-            // ÏŞÖÆ¾àÀë·¶Î§
+            // é™åˆ¶è·ç¦»èŒƒå›´
             camera_data.x = Mathf.Clamp(camera_data.x, minDistance, maxDistance);
         }
     }
 
     void HandleRightMouseRotation()
     {
-        // ¼ì²âÓÒ¼ü°´ÏÂ
+        // æ£€æµ‹å³é”®æŒ‰ä¸‹
         if (Input.GetMouseButtonDown(1))
         {
             isRightMouseDown = true;
             lastMousePosition = Input.mousePosition;
         }
 
-        // ¼ì²âÓÒ¼üÊÍ·Å
+        // æ£€æµ‹å³é”®é‡Šæ”¾
         if (Input.GetMouseButtonUp(1))
         {
             isRightMouseDown = false;
         }
 
-        // ÓÒ¼ü°´ÏÂÊ±´¦ÀíĞı×ª
+        // å³é”®æŒ‰ä¸‹æ—¶å¤„ç†æ—‹è½¬
         if (isRightMouseDown)
         {
-            // ¼ÆËãÊó±êÒÆ¶¯Á¿ (dx, dy)
+            // è®¡ç®—é¼ æ ‡ç§»åŠ¨é‡ (dx, dy)
             Vector2 currentMousePosition = Input.mousePosition;
             Vector2 d_pos = currentMousePosition - lastMousePosition;
             lastMousePosition = currentMousePosition;
 
-            // Ó¦ÓÃĞı×ª (×¢Òâ£º´¹Ö±·½ÏòÏà·´£¬ÒòÎªÆÁÄ»×ø±êÏµYÖáÏòÏÂ)
+            // åº”ç”¨æ—‹è½¬ (æ³¨æ„ï¼šå‚ç›´æ–¹å‘ç›¸åï¼Œå› ä¸ºå±å¹•åæ ‡ç³»Yè½´å‘ä¸‹)
             camera_data.y += d_pos.y * rotationSpeed * Time.deltaTime;
             camera_data.z -= d_pos.x * rotationSpeed * Time.deltaTime;
 
-            // ÏŞÖÆ´¹Ö±½Ç¶È (0-¦Ğ)
+            // é™åˆ¶å‚ç›´è§’åº¦ (0-Ï€)
             camera_data.y = Mathf.Clamp(camera_data.y, 0.1f, Mathf.PI - 0.1f);
 
-            // È·±£Ë®Æ½½Ç¶ÈÔÚ0-2¦Ğ·¶Î§ÄÚ
+            // ç¡®ä¿æ°´å¹³è§’åº¦åœ¨0-2Ï€èŒƒå›´å†…
             if (camera_data.z < 0) camera_data.z += Mathf.PI * 2;
             if (camera_data.z > Mathf.PI * 2) camera_data.z -= Mathf.PI * 2;
         }
@@ -132,8 +133,8 @@ public class CameraController : MonoBehaviour
 
     void UpdateCameraPosition()
     {
-        // ´ÓÇò×ø±ê×ª»»ÎªÖ±½Ç×ø±ê
-        // Çò×ø±ê×ªÖ±½Ç×ø±ê¹«Ê½:
+        // ä»çƒåæ ‡è½¬æ¢ä¸ºç›´è§’åæ ‡
+        // çƒåæ ‡è½¬ç›´è§’åæ ‡å…¬å¼:
         // x = r * sin(theta) * cos(fai)
         // y = r * cos(theta)
         // z = r * sin(theta) * sin(fai)
@@ -147,31 +148,31 @@ public class CameraController : MonoBehaviour
         float cosFai = Mathf.Cos(fai);
         float sinFai = Mathf.Sin(fai);
 
-        // ¼ÆËãÏà»úÏà¶ÔÓÚ½¹µãµÄÎ»ÖÃ
+        // è®¡ç®—ç›¸æœºç›¸å¯¹äºç„¦ç‚¹çš„ä½ç½®
         Vector3 cameraOffset = new Vector3(
             r * sinTheta * cosFai,
             r * cosTheta,
             r * sinTheta * sinFai
         );
 
-        // ÉèÖÃÏà»úÎ»ÖÃ
+        // è®¾ç½®ç›¸æœºä½ç½®
         transform.position = focus_pos + cameraOffset;
 
-        // Ïà»úÊ¼ÖÕ¿´Ïò½¹µã
+        // ç›¸æœºå§‹ç»ˆçœ‹å‘ç„¦ç‚¹
         transform.LookAt(focus_pos);
     }
 
-    // ÔÚ³¡¾°ÖĞ»æÖÆµ÷ÊÔĞÅÏ¢
+    // åœ¨åœºæ™¯ä¸­ç»˜åˆ¶è°ƒè¯•ä¿¡æ¯
     void UpdateDebugText()
     {
         if (debugText == null) return;
 
         sb.Clear();
-        sb.AppendLine($"½¹µãÌìÌå: {focus_body}");
-        sb.AppendLine($"Ïà»ú¾àÀë: {camera_data.x:F1}");
-        sb.AppendLine($"´¹Ö±½Ç¶È: {camera_data.y * Mathf.Rad2Deg:F1}¡ã");
-        sb.AppendLine($"Ë®Æ½½Ç¶È: {camera_data.z * Mathf.Rad2Deg:F1}¡ã");
-        sb.Append($"½¹µãÎ»ÖÃ: {focus_pos}");
+        sb.AppendLine($"ç„¦ç‚¹å¤©ä½“: {focus_body}");
+        sb.AppendLine($"ç›¸æœºè·ç¦»: {camera_data.x:F1}");
+        sb.AppendLine($"å‚ç›´è§’åº¦: {camera_data.y * Mathf.Rad2Deg:F1}Â°");
+        sb.AppendLine($"æ°´å¹³è§’åº¦: {camera_data.z * Mathf.Rad2Deg:F1}Â°");
+        sb.Append($"ç„¦ç‚¹ä½ç½®: {focus_pos}");
 
         debugText.text = sb.ToString();
     }

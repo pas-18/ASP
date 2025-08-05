@@ -121,6 +121,7 @@ public class AutoWireframeSphere : MonoBehaviour
 
     void Update()
     {
+        gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         // Debug.Log("UpDate");
         // 更新特殊经线颜色
         if (specialLineMaterial != null)
@@ -176,12 +177,15 @@ public class AutoWireframeSphere : MonoBehaviour
 
         }
 
+        // 疑似冲突
+        
         if (celestialBodyData != null)
         {
             transform.position = celestialBodyData.display_pos;
-            Debug.Log(celestialName+":"+celestialBodyData.display_pos.ToString());
+            Debug.Log(celestialName + ":" + celestialBodyData.display_pos.ToString());
             transform.localScale = Vector3.one * celestialBodyData.display_radius;
         }
+        
 
         if (celestialName == CoordinateManager.Instance.focusbodyname)
         {
