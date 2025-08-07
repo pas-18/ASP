@@ -19,7 +19,7 @@ public class OrbitalConstruction : MonoBehaviour
     private Mesh mesh;
     private Renderer constructionRenderer;
     private Material constructionMaterial;
-    private SphereCollider collider;
+    private SphereCollider collider_self;
 
 
     void Start()
@@ -49,15 +49,15 @@ public class OrbitalConstruction : MonoBehaviour
         }
 
         // 添加碰撞器用于鼠标检测
-        collider = GetComponent<SphereCollider>();
-        collider.radius = radius;
-        collider.isTrigger = true;
-        if (collider == null)
+        collider_self = GetComponent<SphereCollider>();
+        collider_self.radius = radius;
+        collider_self.isTrigger = true;
+        if (collider_self == null)
         {
             Debug.Log("添加碰撞器");
-            collider = gameObject.AddComponent<SphereCollider>();
-            collider.radius = radius;
-            collider.isTrigger = true;
+            collider_self = gameObject.AddComponent<SphereCollider>();
+            collider_self.radius = radius;
+            collider_self.isTrigger = true;
         }
     }
 
@@ -99,9 +99,9 @@ public class OrbitalConstruction : MonoBehaviour
         constructionMaterial.SetColor("_BackgroundColor", new Color(0, 0, 0, 0));
 
         // 更新碰撞器大小
-        if (collider != null)
+        if (collider_self != null)
         {
-            collider.radius = radius;
+            collider_self.radius = radius;
         }
     }
 

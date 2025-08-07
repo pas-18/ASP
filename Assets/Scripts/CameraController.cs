@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour
     // r: 相机到焦点的距离
     // theta: 垂直角度 (0-π)，0=正上方，π=正下方
     // fai: 水平角度 (0-2π)，0=正前方
-    private Vector3 camera_data = new Vector3(50f, Mathf.PI / 4f, 0f);
+    private Vector3 camera_data = new Vector3(50f, 7 * Mathf.PI / 16f, Mathf.PI);
 
     // 相机控制参数
     public float rotationSpeed = 2f;     // 旋转速度
@@ -154,7 +154,7 @@ public class CameraController : MonoBehaviour
             r * cosTheta,
             r * sinTheta * sinFai
         );
-
+        CoordinateManager.Instance.scaleFactor = 600000 * r / 50;
         // 设置相机位置
         transform.position = focus_pos + cameraOffset;
 

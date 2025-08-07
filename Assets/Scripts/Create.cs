@@ -144,6 +144,7 @@ public class Create : MonoBehaviour
             Vector3 position = CalculateSurfacePosition(
                 celestialBody.transform.position,
                 celestialRadius,
+                celestialBody.transform.lossyScale.x,
                 construction.latitude,
                 construction.longitude
             );
@@ -183,16 +184,15 @@ public class Create : MonoBehaviour
     }
 
     // 根据经纬度计算球面上的位置
-    public Vector3 CalculateSurfacePosition(Vector3 center, float radius, float latitude, float longitude)
+    public Vector3 CalculateSurfacePosition(Vector3 center, float radius, float Scale, float latitude, float longitude)
     {
         // 将经纬度转换为弧度
         float latRad = latitude * Mathf.Deg2Rad;
         float lonRad = longitude * Mathf.Deg2Rad;
-
         // 计算球面上的位置
-        float x = radius * Mathf.Cos(latRad) * Mathf.Cos(lonRad);
-        float y = radius * Mathf.Sin(latRad);
-        float z = radius * Mathf.Cos(latRad) * Mathf.Sin(lonRad);
+        float x = Scale * radius * Mathf.Cos(latRad) * Mathf.Cos(lonRad);
+        float y = Scale * radius * Mathf.Sin(latRad);
+        float z = Scale * radius * Mathf.Cos(latRad) * Mathf.Sin(lonRad);
 
         return center + new Vector3(x, y, z);
     }

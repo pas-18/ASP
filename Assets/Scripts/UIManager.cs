@@ -60,7 +60,7 @@ public class UIManager : MonoBehaviour
     {
         if (viewAngleText != null)
         {
-            viewAngleText.text = $"最小视角: {viewAngleSlider.value:F3}rad";
+            viewAngleText.text = $"最小视角(tan值): {viewAngleSlider.value:F3}";
         }
     }
 

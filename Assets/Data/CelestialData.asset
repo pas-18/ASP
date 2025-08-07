@@ -53,3 +53,27 @@ MonoBehaviour:
     longitudeSegments: 24
     latitudeSegments: 12
     lineWidth: 0.1
+  - name: Dres
+    abs_pos: {x: -4.588513e+10, y: -4.0754908e+9, z: -8.033714e+9}
+    abs_radius: 136000
+    color: {r: 0.3529412, g: 0.26666668, b: 0.19607843, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
+  - name: Jool
+    abs_pos: {x: 3.4304864e+10, y: 164220500, z: 5.562628e+10}
+    abs_radius: 6000000
+    color: {r: 0.32941177, g: 0.5176471, b: 0.07058824, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1
+  - name: Eeloo
+    abs_pos: {x: -7.241113e+10, y: 1.197792e+10, z: 8.664116e+10}
+    abs_radius: 210000
+    color: {r: 0.40784314, g: 0.41568628, b: 0.41568628, a: 1}
+    velocity: {x: 0, y: 0, z: 0}
+    longitudeSegments: 24
+    latitudeSegments: 12
+    lineWidth: 0.1

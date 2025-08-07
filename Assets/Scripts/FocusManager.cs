@@ -7,7 +7,7 @@ public class FocusManager : MonoBehaviour
 {
     void Update()
     {
-        // 按数字键切换焦点天体
+        // 鎸夋暟瀛楅敭鍒囨崲鐒︾偣澶╀綋
         for (int i = 0; i < 9; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
@@ -19,7 +19,7 @@ public class FocusManager : MonoBehaviour
             }
         }
 
-        // 鼠标点击切换焦点
+        // 榧犳爣鐐瑰嚮鍒囨崲鐒︾偣
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -47,7 +47,7 @@ public class FocusManager : MonoBehaviour
         CoordinateManager.Instance.SetFocusBody(
             GameManager.Instance.celestialData.bodies[index]);
 
-        // 更新位置
+        // 鏇存柊浣嶇疆
         CoordinateManager.Instance.UpdateAllPositions();
     }
 }

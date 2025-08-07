@@ -2,33 +2,33 @@
 // AutoWireframeSphere
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting; // Ìí¼ÓListÖ§³Ö
+using Unity.VisualScripting; // æ·»åŠ Listæ”¯æŒ
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class AutoWireframeSphere : MonoBehaviour
 {
-    [Header("Íø¸ñÉèÖÃ")]
+    [Header("ç½‘æ ¼è®¾ç½®")]
     [Range(4, 64)] public int longitudeSegments = 16;
     [Range(3, 32)] public int latitudeSegments = 8;
     [Range(0.001f, 0.1f)] public float lineWidth = 0.02f;
 
-    [Header("ÌØÊâ¾­ÏßÉèÖÃ")]
-    public Color primeMeridianColor = Color.red; // 0¶È¾­ÏßÑÕÉ«
-    [Range(0, 1)] public float colorBlendWidth = 0.1f; // ÑÕÉ«¹ı¶É¿í¶È
+    [Header("ç‰¹æ®Šç»çº¿è®¾ç½®")]
+    public Color primeMeridianColor = Color.red; // 0åº¦ç»çº¿é¢œè‰²
+    [Range(0, 1)] public float colorBlendWidth = 0.1f; // é¢œè‰²è¿‡æ¸¡å®½åº¦
 
-    [Header("¸ß¼¶ÉèÖÃ")]
+    [Header("é«˜çº§è®¾ç½®")]
     public bool updateInRuntime = true;
 
-    // ¹«¹²×Ö¶Î
+    // å…¬å…±å­—æ®µ
     public string celestialName;
     public Material wireframeMaterial;
     public CelestialData.BodyData celestialBodyData;
     public float abs_radius;
 
-    // Ë½ÓĞ±äÁ¿
+    // ç§æœ‰å˜é‡
     private Mesh mesh;
     private Renderer sphereRenderer;
-    private Material specialLineMaterial; // ÌØÊâ¾­Ïß²ÄÖÊ
+    private Material specialLineMaterial; // ç‰¹æ®Šç»çº¿æè´¨
 
     private bool on_mouse = false;
     private bool on_celestial = false;
@@ -38,12 +38,12 @@ public class AutoWireframeSphere : MonoBehaviour
     {
         InitializeComponents();
         GenerateWireframe();
-        // È·±£ÎïÌåÔÚÕıÈ·µÄ²ã¼¶
+        // ç¡®ä¿ç‰©ä½“åœ¨æ­£ç¡®çš„å±‚çº§
         gameObject.layer = LayerMask.NameToLayer("Celestials");
     }
 
 
-    // Êó±ê½»»¥
+    // é¼ æ ‡äº¤äº’
     private void OnMouseEnter()
     {
         on_mouse = true;
@@ -66,25 +66,25 @@ public class AutoWireframeSphere : MonoBehaviour
             return;
         }
 
-        // Ê¹ÓÃĞŞÕı°ë¾¶
+        // ä½¿ç”¨ä¿®æ­£åŠå¾„
         float actualRadius = CoordinateManager.Instance.GetBodyRadius(celestialBodyData);
         // Debug.Log(celestialBodyData.ToString());
         // CoordinateManager.Instance.GetBodyRadius(celestialBodyData);
 
-        // »ñÈ¡ÇòÌåÑÕÉ«
+        // è·å–çƒä½“é¢œè‰²
         Color sphereColor = GetSphereColor();
         wireframeMaterial.SetColor("_LineColor", sphereColor);
         wireframeMaterial.SetFloat("_LineWidth", lineWidth);
 
-        // Éú³ÉÍø¸ñÊı¾İ
-        // Debug.Log(actualRadius);
+        // ç”Ÿæˆç½‘æ ¼æ•°æ®
+        // Debug.Log(celestialName + actualRadius.ToString());
         GenerateMeshData(actualRadius);
     }
 
 
     public void InitializeComponents()
     {
-        // »ñÈ¡»ò´´½¨±ØÒªµÄ×é¼ş
+        // è·å–æˆ–åˆ›å»ºå¿…è¦çš„ç»„ä»¶
         if (mesh == null)
         {
             mesh = new Mesh();
@@ -93,29 +93,29 @@ public class AutoWireframeSphere : MonoBehaviour
 
         sphereRenderer = GetComponent<Renderer>();
 
-        // È·±£ÓĞMeshFilter×é¼ş
+        // ç¡®ä¿æœ‰MeshFilterç»„ä»¶
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         if (meshFilter == null) meshFilter = gameObject.AddComponent<MeshFilter>();
         meshFilter.mesh = mesh;
 
-        // È·±£ÓĞMeshRenderer×é¼ş
+        // ç¡®ä¿æœ‰MeshRendererç»„ä»¶
         MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
         if (meshRenderer == null) meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
-        // ´´½¨»ò»ñÈ¡Ïß¿ò²ÄÖÊ
+        // åˆ›å»ºæˆ–è·å–çº¿æ¡†æè´¨
         if (wireframeMaterial == null)
         {
             wireframeMaterial = new Material(Shader.Find("Custom/LatLongWireframe"));
         }
 
-        // ´´½¨ÌØÊâ¾­Ïß²ÄÖÊ
+        // åˆ›å»ºç‰¹æ®Šç»çº¿æè´¨
         if (specialLineMaterial == null)
         {
             specialLineMaterial = new Material(wireframeMaterial);
             specialLineMaterial.SetColor("_LineColor", primeMeridianColor);
         }
 
-        // ÉèÖÃ²ÄÖÊÊı×é
+        // è®¾ç½®æè´¨æ•°ç»„
         meshRenderer.sharedMaterials = new Material[] { wireframeMaterial, specialLineMaterial };
     }
 
@@ -123,13 +123,13 @@ public class AutoWireframeSphere : MonoBehaviour
     {
         gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         // Debug.Log("UpDate");
-        // ¸üĞÂÌØÊâ¾­ÏßÑÕÉ«
+        // æ›´æ–°ç‰¹æ®Šç»çº¿é¢œè‰²
         if (specialLineMaterial != null)
         {
             specialLineMaterial.SetColor("_LineColor", primeMeridianColor);
         }
 
-        // Èç¹ûÆôÓÃÔËĞĞÊ±¸üĞÂ£¬¼ì²éÇòÌå²ÎÊıÊÇ·ñ±ä»¯
+        // å¦‚æœå¯ç”¨è¿è¡Œæ—¶æ›´æ–°ï¼Œæ£€æŸ¥çƒä½“å‚æ•°æ˜¯å¦å˜åŒ–
         if (updateInRuntime && HasSphereParametersChanged())
         {
             GenerateWireframe();
@@ -139,13 +139,13 @@ public class AutoWireframeSphere : MonoBehaviour
 
         if (on_mouse)
         {
-            // Ê¹ÓÃÉäÏß¼ì²âÈ·¶¨Êµ¼ÊÃüÖĞµÄÎïÌå
+            // ä½¿ç”¨å°„çº¿æ£€æµ‹ç¡®å®šå®é™…å‘½ä¸­çš„ç‰©ä½“
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 //Debug.Log("Hit"+celestialName+hit.collider.gameObject.layer.ToString()+"/"+LayerMask.NameToLayer("Celestial").ToString());
-                // ¼ì²éÊÇ·ñÃüÖĞÁËµ±Ç°ÌìÌå£¨¸¸ÎïÌå£©
+                // æ£€æŸ¥æ˜¯å¦å‘½ä¸­äº†å½“å‰å¤©ä½“ï¼ˆçˆ¶ç‰©ä½“ï¼‰
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Celestials"))
                 {
                     on_construction = false;
@@ -154,7 +154,7 @@ public class AutoWireframeSphere : MonoBehaviour
                     Debug.Log("ShowCelestialInfo:" + celestialName);
                 }
 
-                // ¼ì²éÊÇ·ñÃüÖĞÁË½¨Öş£¨×ÓÎïÌå£©
+                // æ£€æŸ¥æ˜¯å¦å‘½ä¸­äº†å»ºç­‘ï¼ˆå­ç‰©ä½“ï¼‰
                 else if (celestialName == CoordinateManager.Instance.focusbodyname)
                 {
                     if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Constructions"))
@@ -162,7 +162,7 @@ public class AutoWireframeSphere : MonoBehaviour
                         on_construction = true;
                         on_celestial = false;
                         Debug.Log("HideCelestialInfo:" + celestialName);
-                        // »ñÈ¡½¨Öş×é¼ş
+                        // è·å–å»ºç­‘ç»„ä»¶
                         OrbitalConstruction construction = hit.collider.GetComponent<OrbitalConstruction>();
                         construction.ShowConstructionInfo();
                     }
@@ -177,30 +177,38 @@ public class AutoWireframeSphere : MonoBehaviour
 
         }
 
-        // ÒÉËÆ³åÍ»
-        
+        // ç–‘ä¼¼å†²çª
         if (celestialBodyData != null)
         {
             transform.position = celestialBodyData.display_pos;
-            Debug.Log(celestialName + ":" + celestialBodyData.display_pos.ToString());
+            // Debug.Log(celestialName + ":" + celestialBodyData.display_pos.ToString());
             transform.localScale = Vector3.one * celestialBodyData.display_radius;
+            // Debug.Log(celestialName+transform.localScale.ToString());
         }
-        
 
         if (celestialName == CoordinateManager.Instance.focusbodyname)
         {
-            foreach (Transform child in transform) // Ö±½Ó±éÀútransformµÄ×Ó¼¶
+            foreach (Transform child in transform) // ç›´æ¥éå†transformçš„å­çº§
             {
                 OrbitalConstruction orbitalConstruction = child.gameObject.GetComponent<OrbitalConstruction>();
 
-                // ¼ÆËã½¨ÖşÔÚÇòÃæÉÏµÄÎ»ÖÃ
+                // è®¡ç®—å»ºç­‘åœ¨çƒé¢ä¸Šçš„ä½ç½®
                 Vector3 position = Create.Instance.CalculateSurfacePosition(
                     Vector3.zero,
                     abs_radius / 600000,
+                    gameObject.transform.lossyScale.x,
                     orbitalConstruction.latitude,
                     orbitalConstruction.longitude
                 );
                 child.gameObject.transform.position = position;
+                child.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            foreach (Transform child in transform) // ç›´æ¥éå†transformçš„å­çº§
+            {
+                child.gameObject.SetActive(false);
             }
         }
     }
@@ -229,15 +237,15 @@ public class AutoWireframeSphere : MonoBehaviour
 
     void GenerateMeshData(float radius)
     {
-
-        // ¶¥µã¼ÆËã
-        int vertexCount = longitudeSegments * (latitudeSegments + 1)  // ¾­Ïß
-                        + (latitudeSegments - 1) * longitudeSegments; // Î³Ïß (ÅÅ³ıÁ½¼«)
+        radius = 1.0f;
+        // é¡¶ç‚¹è®¡ç®—
+        int vertexCount = longitudeSegments * (latitudeSegments + 1)  // ç»çº¿
+                        + (latitudeSegments - 1) * longitudeSegments; // çº¬çº¿ (æ’é™¤ä¸¤æ)
 
         Vector3[] vertices = new Vector3[vertexCount];
         int vertexIndex = 0;
 
-        // Éú³É¾­Ïß¶¥µã
+        // ç”Ÿæˆç»çº¿é¡¶ç‚¹
         for (int lon = 0; lon < longitudeSegments; lon++)
         {
             float phi = 2f * Mathf.PI * lon / longitudeSegments;
@@ -249,7 +257,7 @@ public class AutoWireframeSphere : MonoBehaviour
             }
         }
 
-        // Éú³ÉÎ³Ïß¶¥µã (ÅÅ³ıÁ½¼«)
+        // ç”Ÿæˆçº¬çº¿é¡¶ç‚¹ (æ’é™¤ä¸¤æ)
         for (int lat = 1; lat < latitudeSegments; lat++)
         {
             float theta = Mathf.PI * lat / latitudeSegments;
@@ -261,11 +269,11 @@ public class AutoWireframeSphere : MonoBehaviour
             }
         }
 
-        // ´´½¨×ÓÍø¸ñË÷Òı
-        List<int> mainIndices = new List<int>(); // Ö÷Íø¸ñË÷Òı£¨ÆÕÍ¨ÑÕÉ«£©
-        List<int> specialIndices = new List<int>(); // ÌØÊâ¾­ÏßË÷Òı£¨ºìÉ«£©
+        // åˆ›å»ºå­ç½‘æ ¼ç´¢å¼•
+        List<int> mainIndices = new List<int>(); // ä¸»ç½‘æ ¼ç´¢å¼•ï¼ˆæ™®é€šé¢œè‰²ï¼‰
+        List<int> specialIndices = new List<int>(); // ç‰¹æ®Šç»çº¿ç´¢å¼•ï¼ˆçº¢è‰²ï¼‰
 
-        // ¾­ÏßË÷Òı
+        // ç»çº¿ç´¢å¼•
         for (int lon = 0; lon < longitudeSegments; lon++)
         {
             int startIndex = lon * (latitudeSegments + 1);
@@ -275,7 +283,7 @@ public class AutoWireframeSphere : MonoBehaviour
                 int idx1 = startIndex + lat;
                 int idx2 = startIndex + lat + 1;
 
-                // ¼ì²éÊÇ·ñÎª0¶È¾­Ïß£¨lon == 0£©
+                // æ£€æŸ¥æ˜¯å¦ä¸º0åº¦ç»çº¿ï¼ˆlon == 0ï¼‰
                 if (lon == 0)
                 {
                     specialIndices.Add(idx1);
@@ -289,7 +297,7 @@ public class AutoWireframeSphere : MonoBehaviour
             }
         }
 
-        // Î³ÏßË÷Òı (È«²¿ÆÕÍ¨ÑÕÉ«)
+        // çº¬çº¿ç´¢å¼• (å…¨éƒ¨æ™®é€šé¢œè‰²)
         int baseIndex = longitudeSegments * (latitudeSegments + 1);
         for (int lat = 0; lat < latitudeSegments - 1; lat++)
         {
@@ -305,19 +313,19 @@ public class AutoWireframeSphere : MonoBehaviour
             }
         }
 
-        // ¸üĞÂÍø¸ñ
+        // æ›´æ–°ç½‘æ ¼
         mesh.Clear();
         mesh.vertices = vertices;
-        mesh.subMeshCount = 2; // Á½¸ö×ÓÍø¸ñ
+        mesh.subMeshCount = 2; // ä¸¤ä¸ªå­ç½‘æ ¼
 
-        // ÉèÖÃÖ÷Íø¸ñ£¨ÆÕÍ¨Ïß£©
+        // è®¾ç½®ä¸»ç½‘æ ¼ï¼ˆæ™®é€šçº¿ï¼‰
         mesh.SetIndices(mainIndices.ToArray(), MeshTopology.Lines, 0);
 
-        // ÉèÖÃÌØÊâÍø¸ñ£¨0¶È¾­Ïß£©
+        // è®¾ç½®ç‰¹æ®Šç½‘æ ¼ï¼ˆ0åº¦ç»çº¿ï¼‰
         mesh.SetIndices(specialIndices.ToArray(), MeshTopology.Lines, 1);
 
         SphereCollider collider = GetComponent<SphereCollider>();
-        collider.radius = radius;
+        collider.radius = 1.0f;
     }
 
     Vector3 SphericalToCartesian(float radius, float theta, float phi)
@@ -333,17 +341,18 @@ public class AutoWireframeSphere : MonoBehaviour
     {
         if (celestialBodyData == null) return;
         
-        // »ñÈ¡µ±Ç°ÏÔÊ¾°ë¾¶
+        // è·å–å½“å‰æ˜¾ç¤ºåŠå¾„
         float actualRadius = CoordinateManager.Instance.GetBodyRadius(celestialBodyData);
-        
-        // ¸üĞÂÏß¿ò
+
+        // æ›´æ–°çº¿æ¡†
+        // Debug.Log(celestialName + actualRadius.ToString());
         GenerateMeshData(actualRadius);
         
-        // ¸üĞÂÅö×²Æ÷
+        // æ›´æ–°ç¢°æ’å™¨
         SphereCollider collider = GetComponent<SphereCollider>();
         if (collider != null)
         {
-            collider.radius = actualRadius;
+            collider.radius = 1.0f;
         }
     }
 }

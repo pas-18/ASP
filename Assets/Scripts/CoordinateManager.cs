@@ -1,37 +1,42 @@
 // CoordinateManager.cs
-using System.Collections;
-using System.Collections.Generic;
+//透视自适应坐标系统 (Perspective Adaptive Coordinate System - PACS)
 using UnityEngine;
 
 public class CoordinateManager : MonoBehaviour
 {
     public static CoordinateManager Instance;
 
-    public const float FLOAT_PRECISION_THRESHOLD = 1000f;  // 压缩阈值
+    public const float PRECISION_THRESHOLD = 2500f;  // 压缩阈值
     public bool ensureMinViewAngle = false; // UI开关
-    public float minViewAngle = 0f; // 最小视角(度)
+    public float minViewAngle = 0f; // 最小视角(tan值)
+    public float scaleFactor = 600000f; // 缩放因子
 
     // 当前焦点天体
     private CelestialData.BodyData focusBody;
     public string focusbodyname;
     private Camera mainCamera;
     public float updateInterval = 0.1f; // 每秒更新10次
-    private float lastUpdateTime;
+    // private float lastUpdateTime;
 
     void Awake()
     {
         Instance = this;
         mainCamera = Camera.main;
     }
+
     
     void Update()
     {
+        /*
         if (Time.time - lastUpdateTime > updateInterval)
         {
             UpdateAllPositions();
             lastUpdateTime = Time.time;
         }
+        */
+        UpdateAllPositions();
     }
+    
 
     // 设置焦点天体
     public void SetFocusBody(CelestialData.BodyData body)
@@ -51,73 +56,67 @@ public class CoordinateManager : MonoBehaviour
     // 更新所有天体的位置
     public void UpdateAllPositions()
     {
+        Debug.Log("调用!");
         if (focusBody == null || mainCamera == null) return;
 
-        float scaleFactor = 600000; // 缩放基准600,000
         Vector3 cameraPos = mainCamera.transform.position;
-        
+
         foreach (var body in GameManager.Instance.celestialData.bodies)
         {
-            Debug.Log(body.name);
-             // 焦点天体始终位于原点
+            // 焦点天体处理
             if (body == focusBody)
             {
                 body.display_pos = Vector3.zero;
                 body.display_radius = body.abs_radius / scaleFactor;
-                continue;
             }
             // 基本缩放
             Vector3 relPos = (body.abs_pos - focusBody.abs_pos) / scaleFactor;
             float baseRadius = body.abs_radius / scaleFactor;
 
-            // 压缩处理
-            float distance = relPos.magnitude;
-            if (distance > FLOAT_PRECISION_THRESHOLD)
+            // 1. 计算天体与相机的相对位置
+            Vector3 camToBody = relPos - cameraPos;
+            float distanceToCam = camToBody.magnitude;
+
+            // 2. 计算原始视角大小
+            float baseViewRad = baseRadius / distanceToCam;
+
+            // 3. 距离超过阈值时进行坐标压缩
+            if (distanceToCam > PRECISION_THRESHOLD)
             {
-                Debug.Log("FLOAT_PRECISION_THRESHOLD:"+body.name);
-                float compressionRatio = FLOAT_PRECISION_THRESHOLD / distance;
-                body.display_pos = relPos * compressionRatio;
-                body.display_radius = baseRadius * compressionRatio;
+                // 4. 视角
+                if (ensureMinViewAngle)
+                {
+                    body.display_radius = (minViewAngle * PRECISION_THRESHOLD > baseViewRad * PRECISION_THRESHOLD)
+                     ? minViewAngle * PRECISION_THRESHOLD : baseViewRad * PRECISION_THRESHOLD;
+                }
+                else
+                {
+                    body.display_radius = baseViewRad * PRECISION_THRESHOLD;
+                }
+
+                // 5. 计算修正后的位置（基于相机位置）
+                Vector3 dirToBody = camToBody.normalized;
+                body.display_pos = cameraPos + dirToBody * PRECISION_THRESHOLD;
             }
+            // 未超过阈值，不缩放
             else
             {
-                Debug.Log("NoOperation:" + body.name);
+                // Debug.Log(body.name + "NoOperation");
                 body.display_pos = relPos;
                 body.display_radius = baseRadius;
-            }
-
-            // 视角保证
-            if (ensureMinViewAngle)
-            {
-                EnsureMinViewAngle(body, cameraPos);
+                if (ensureMinViewAngle)
+                {
+                    body.display_radius = (minViewAngle * distanceToCam > baseViewRad * distanceToCam)
+                     ? minViewAngle * distanceToCam : baseViewRad * distanceToCam;
+                }
+                else
+                {
+                    body.display_radius = baseRadius;
+                }
             }
         }
 
         UpdateBodyPositions();
-    }
-
-
-    private void EnsureMinViewAngle(CelestialData.BodyData body, Vector3 cameraPos)
-    {
-        // 计算天体到相机的向量
-        Vector3 toBody = body.display_pos - cameraPos;
-        float distanceToCamera = toBody.magnitude;
-        
-        // 避免除以零
-        if (distanceToCamera < 0.001f) return;
-        
-        // 计算当前视角(弧度)
-        float currentAngleRad = Mathf.Atan2(body.display_radius, distanceToCamera);
-        float currentAngleDeg = currentAngleRad * Mathf.Rad2Deg;
-        float minAngleRad = minViewAngle * Mathf.Deg2Rad;
-        
-        // 如果当前视角小于最小视角
-        if (currentAngleDeg < minViewAngle)
-        {
-            // 计算所需半径以保证最小视角
-            float requiredRadius = distanceToCamera * Mathf.Tan(minAngleRad);
-            body.display_radius = requiredRadius;
-        }
     }
 
 
@@ -151,7 +150,7 @@ public class CoordinateManager : MonoBehaviour
     // 获取天体在场景中的半径
     public float GetBodyRadius(CelestialData.BodyData body)
     {
-        if(body == null)
+        if (body == null)
         {
             Debug.Log("Null");
         }
